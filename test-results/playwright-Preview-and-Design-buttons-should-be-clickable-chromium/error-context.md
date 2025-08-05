@@ -1,0 +1,145 @@
+# Page snapshot
+
+```yaml
+- button "Cut" [disabled]:
+  - img
+- button "Copy" [disabled]:
+  - img
+- button "Paste" [disabled]:
+  - img
+- button "Delete" [disabled]:
+  - img
+- button "Undo" [disabled]:
+  - img
+- button "Redo" [disabled]:
+  - img
+- button "Zoom Out":
+  - img
+- combobox "Select...": 100%
+- button "Select": 
+- button "Zoom In":
+  - img
+- button "Validate Bindings":
+  - img
+- button "Full Screen":
+  - img
+- text: Design
+- button "Preview"
+- img: 0 1
+- img: 0 1 2 3 4 5 6 7 8
+- img
+- img
+- text: Report
+- img
+- text: Category Name Description Picture Icon17 Icon25
+- img
+- text: CATEGORY ID [CategoryID]
+- img
+- text: "[CategoryName] [Description]"
+- img
+- img
+- text: "Page {0} of {1} Current Date and Time"
+- img
+- img
+- button "dxrd-svg-properties-tasksmarttag":
+  - img
+- button "dxrd-svg-properties-propertyexpression":
+  - img
+- img: 0 1
+- text: TopMargin
+- img: 0 1
+- text: ReportHeader
+- img: "0"
+- text: GroupHeader2
+- img: "0"
+- text: GroupHeader1
+- img: "0"
+- text: Detail
+- img: "0"
+- text: GroupFooter1
+- img: 0 1
+- text: BottomMargin
+- button "Properties" [expanded]:
+  - img
+- button "Expressions":
+  - img
+- button "Fields":
+  - img
+- button "Report Explorer":
+  - img
+- text: Properties
+- combobox "Select...": Report (Report)
+- button "Select": 
+- button "dxrd-svg-properties-sortingbyalphabet":
+  - img
+- button "dxrd-svg-properties-sortingbygroups":
+  - img
+- button "dxrd-svg-properties-search":
+  - img
+- textbox "Enter text to search..."
+- text: Enter text to search...
+- img
+- text: Report Tasks
+- treeitem "Data Source sqlDataSource1 Select":
+  - text: Data Source
+  - combobox "Data Source": sqlDataSource1
+  - button "Select": 
+- treeitem "Data Member Categories  Select":
+  - text: Data Member
+  - combobox "Data Member": Categories
+  - text: 
+  - button "Select": 
+- treeitem "Filter String dxrd-svg-ellipsis":
+  - text: Filter String
+  - textbox "Filter String"
+  - button "dxrd-svg-ellipsis":
+    - img
+- treeitem "Measure Units Hundredths of an Inch Select":
+  - text: Measure Units
+  - combobox "Measure Units": Hundredths of an Inch
+  - button "Select": 
+- treeitem "Language (Default) Select":
+  - text: Language
+  - combobox "Language": (Default)
+  - button "Select": 
+- img
+- text: Appearance
+- img
+- text: Behavior
+- img
+- text: Data
+- img
+- text: Design
+- img
+- text: Navigation
+- img
+- text: Page Settings
+- img
+- text: Printing
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- img
+- tablist:
+  - tab " Report" [selected]
+- img
+- img
+```
