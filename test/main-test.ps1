@@ -43,6 +43,12 @@ function LaunchFrontend([Parameter(Mandatory)][string]$path) {
 }
 
 function RunPlaywrightTests() {
+    # Ensure Playwright browsers are installed
+    Write-Host "Checking Playwright browser installation..."
+    npx playwright install --with-deps chromium | Out-Host
+    CheckLastExitCode
+    
+    Write-Host "Running Playwright tests..."
     npx playwright test | Out-Host
     $exitCode = $LASTEXITCODE
 

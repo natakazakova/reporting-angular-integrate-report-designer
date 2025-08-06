@@ -16,7 +16,8 @@ env:
 
 jobs:
   test:
-    runs-on: windows-latest    
+    runs-on: windows-latest
+    timeout-minutes: 5    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -39,6 +40,14 @@ jobs:
       uses: browser-actions/setup-chrome@v1
       with:
         chrome-version: stable
+
+    - name: Install dependencies
+      shell: pwsh
+      run: |
+        Write-Host "Installing npm dependencies..."
+        npm ci
+        Write-Host "Installing Playwright browsers..."
+        npx playwright install --with-deps chromium
         
     - name: Run Tests
       shell: pwsh
