@@ -21,7 +21,7 @@ function LaunchBackend([Parameter(Mandatory)][string]$path) {
     try {
         Write-Host "Starting backend server..."
         $process = Start-Process dotnet -ArgumentList ('run') -PassThru
-        Start-Sleep -Seconds 15  # Give backend time to start (increased from 5 to match frontend timing)
+        Start-Sleep -Seconds 25 
         return $process
     } finally {
         Pop-Location
@@ -35,7 +35,7 @@ function LaunchFrontend([Parameter(Mandatory)][string]$path) {
         Write-Host "Starting frontend server..."
         $process = Start-Process cmd -ArgumentList ('/c', 'npm', 'start') -PassThru
         Write-Host "Waiting for frontend to be ready..."
-        Start-Sleep -Seconds 25  # Give frontend time to build and start
+        Start-Sleep -Seconds 30  # Give frontend time to build and start
         return $process
     } finally {
         Pop-Location
