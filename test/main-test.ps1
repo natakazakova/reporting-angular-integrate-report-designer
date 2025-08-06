@@ -6,10 +6,10 @@ $ProgressPreference = 'SilentlyContinue'
 
 function CheckLastExitCode([string]$Operation = "Unknown operation") {
     if ($LastExitCode -ne 0) {
-        Write-Host "$Operation failed with exit code: $LastExitCode" -ForegroundColor Red
+        Write-Host "❌ $Operation failed with exit code: $LastExitCode"
         Write-Error -ErrorAction Stop "Last exit code: $LastExitCode"
     }
-    Write-Host "$Operation completed successfully" -ForegroundColor Green
+    Write-Host "✅ $Operation completed successfully"
 }
 
 function InstallNpmPackages() {    
@@ -24,11 +24,11 @@ function InstallNpmPackages() {
             CheckLastExitCode "npm ci"
         }
         catch {
-            Write-Host "npm ci failed: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "❌ npm ci failed: $($_.Exception.Message)"
             throw
         }
     } else {
-        Write-Host "Node modules already exist, skipping installation" -ForegroundColor Green
+        Write-Host "✅ Node modules already exist, skipping installation"
     }
 }
 
@@ -44,21 +44,21 @@ function LaunchBackend([Parameter(Mandatory)][string]$path) {
         
         Write-Host "Starting backend server..." 
         $process = Start-Process dotnet -ArgumentList ('run') -PassThru
-        Write-Host "Backend process started with PID: $($process.Id)" -ForegroundColor Green
+        Write-Host "✅ Backend process started with PID: $($process.Id)"
         Write-Host "Waiting 25 seconds for backend to initialize..." 
         Start-Sleep -Seconds 25 
         
         # Check if process is still running
         if (-not $process.HasExited) {
-            Write-Host "Backend process is still running" -ForegroundColor Green
+            Write-Host "✅ Backend process is still running"
         } else {
-            Write-Host "Backend process has exited with code: $($process.ExitCode)" -ForegroundColor Red
+            Write-Host "❌ Backend process has exited with code: $($process.ExitCode)"
             throw "Backend process terminated unexpectedly"
         }
         
         return $process
     } catch {
-        Write-Host "Backend launch failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "❌ Backend launch failed: $($_.Exception.Message)"
         throw
     } finally {
         Pop-Location
@@ -79,21 +79,21 @@ function LaunchFrontend([Parameter(Mandatory)][string]$path) {
         
         Write-Host "Starting frontend server..." 
         $process = Start-Process cmd -ArgumentList ('/c', 'npm', 'start') -PassThru
-        Write-Host "Frontend process started with PID: $($process.Id)" -ForegroundColor Green
+        Write-Host "✅Frontend process started with PID: $($process.Id)"
         Write-Host "Waiting 30 seconds for frontend to build and start..." 
         Start-Sleep -Seconds 30
         
         # Check if process is still running
         if (-not $process.HasExited) {
-            Write-Host "Frontend process is still running" -ForegroundColor Green
+            Write-Host "✅ Frontend process is still running"
         } else {
-            Write-Host "Frontend process has exited with code: $($process.ExitCode)" -ForegroundColor Red
+            Write-Host "❌ Frontend process has exited with code: $($process.ExitCode)"
             Write-Host "This might indicate a build failure or configuration issue" 
         }
         
         return $process
     } catch {
-        Write-Host "Frontend launch failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "❌ Frontend launch failed: $($_.Exception.Message)"
         throw
     } finally {
         Pop-Location
@@ -116,9 +116,9 @@ function RunPlaywrightTests() {
         Write-Host "Testing frontend connectivity..." 
         try {
             $response = Invoke-WebRequest -Uri "http://localhost:4200" -TimeoutSec 10 -UseBasicParsing
-            Write-Host "Frontend is responsive (HTTP $($response.StatusCode))" -ForegroundColor Green
+            Write-Host "✅ Frontend is responsive (HTTP $($response.StatusCode))"
         } catch {
-            Write-Host "⚠️  Frontend connectivity test failed: $($_.Exception.Message)" 
+            Write-Host "⚠️ Frontend connectivity test failed: $($_.Exception.Message)" 
             Write-Host "Proceeding with Playwright tests anyway..." 
         }
         
@@ -126,18 +126,18 @@ function RunPlaywrightTests() {
         npx playwright test --reporter=list | Out-Host
         $exitCode = $LASTEXITCODE
 
-        Write-Host "Playwright test execution completed" -ForegroundColor $(if ($exitCode -eq 0) { 'Green' } else { 'Red' })
-        Write-Host "Playwright exit code: $exitCode" -ForegroundColor $(if ($exitCode -eq 0) { 'Green' } else { 'Red' })
+        Write-Host "Playwright test execution completed"
+        Write-Host "Playwright exit code: $exitCode"
         
         return $exitCode
     } catch {
-        Write-Host "Playwright test execution failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "❌ Playwright test execution failed: $($_.Exception.Message)"
         throw
     }
 }
 
 function Main() {
-    Write-Host "MAIN TEST EXECUTION STARTED" -ForegroundColor Magenta
+    Write-Host "MAIN TEST EXECUTION STARTED"
     Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)"
     Write-Host "Execution Policy: $(Get-ExecutionPolicy)"
     Write-Host "Current User: $env:USERNAME"
@@ -146,19 +146,18 @@ function Main() {
     try {
         InstallNpmPackages
         
-        Write-Host "Launching backend..." -ForegroundColor Magenta
+        Write-Host "Launching backend..."
         $backendProcess = LaunchBackend ./ServerApp
         
         try {
-            Write-Host "Launching frontend..." -ForegroundColor Magenta
+            Write-Host "Launching frontend..."
             $frontendProcess = LaunchFrontend ./angular-report-designer
             
             try {
-                Write-Host "Running Playwright tests..." -ForegroundColor Magenta
+                Write-Host "Running Playwright tests..."
                 $testResult = RunPlaywrightTests
-                
-                Write-Host "TEST EXECUTION COMPLETED" -ForegroundColor Magenta
-                Write-Host "Final test result: $testResult" -ForegroundColor $(if ($testResult -eq 0) { 'Green' } else { 'Red' })
+
+                Write-Host "Final test result: $testResult" 
                 
                 return $testResult
             } finally {
@@ -166,9 +165,9 @@ function Main() {
                 try {
                     Write-Host "Stopping frontend process (PID: $($frontendProcess.Id))..." 
                     taskkill.exe /F /T /PID $frontendProcess.Id 2>$null | Out-Host
-                    Write-Host "Frontend process stopped" -ForegroundColor Green
+                    Write-Host "✅ Frontend process stopped"
                 } catch {
-                    Write-Host "⚠️  Frontend cleanup warning: $($_.Exception.Message)" 
+                    Write-Host "⚠️ Frontend cleanup warning: $($_.Exception.Message)" 
                 }
             }
         } finally {
@@ -176,33 +175,33 @@ function Main() {
             try {
                 Write-Host "Stopping backend process (PID: $($backendProcess.Id))..." 
                 Stop-Process $backendProcess -Force -ErrorAction SilentlyContinue | Out-Host
-                Write-Host "Backend process stopped" -ForegroundColor Green
+                Write-Host "✅ Backend process stopped"
             } catch {
-                Write-Host "⚠️  Backend cleanup warning: $($_.Exception.Message)" 
+                Write-Host "⚠️ Backend cleanup warning: $($_.Exception.Message)" 
             }
         }
     } catch {
-        Write-Host "Main execution failed: $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "Exception Type: $($_.Exception.GetType().FullName)" -ForegroundColor Red
+        Write-Host "❌ Main execution failed: $($_.Exception.Message)"
+        Write-Host "Exception Type: $($_.Exception.GetType().FullName)"
         throw
     }
 }
 
 try {
-    Write-Host "SCRIPT EXECUTION STARTED" -ForegroundColor Magenta
+    Write-Host "SCRIPT EXECUTION STARTED"
     $result = Main
-    Write-Host "SCRIPT EXECUTION COMPLETED SUCCESSFULLY" -ForegroundColor Green
-    Write-Host "Final exit code: $result" -ForegroundColor Green
+    Write-Host "✅ SCRIPT EXECUTION COMPLETED SUCCESSFULLY"
+    Write-Host "✅ Final exit code: $result"
     Exit [int]$result
 } catch {
-    Write-Host "SCRIPT EXECUTION FAILED" -ForegroundColor Red
-    Write-Host "Fatal Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Exception Type: $($_.Exception.GetType().FullName)" -ForegroundColor Red
-    Write-Host "Script Stack Trace:" -ForegroundColor Red
+    Write-Host "❌ SCRIPT EXECUTION FAILED"
+    Write-Host "❌ Fatal Error: $($_.Exception.Message)"
+    Write-Host "Exception Type: $($_.Exception.GetType().FullName)"
+    Write-Host "Script Stack Trace:"
     $_.ScriptStackTrace -split [System.Environment]::NewLine | ForEach-Object { 
-        Write-Host "  $_" -ForegroundColor Red 
+        Write-Host "$_" 
     }
-    Write-Host "Full Exception Details:" -ForegroundColor Red
-    Write-Host "$($_.Exception.ToString())" -ForegroundColor Red
+    Write-Host "Full Exception Details:"
+    Write-Host "$($_.Exception.ToString())"
     Exit -1
 }
