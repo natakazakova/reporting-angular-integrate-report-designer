@@ -195,7 +195,7 @@ try {
     Write-Host "SCRIPT EXECUTION STARTED"
     $result = Main
     Write-Host "✅ SCRIPT EXECUTION COMPLETED SUCCESSFULLY"
-    Write-Host "✅ Final exit code: $result"
+    Write-Host "Final exit code: $result"
     Exit [int]$result
 } catch {
     Write-Host "❌ SCRIPT EXECUTION FAILED"
