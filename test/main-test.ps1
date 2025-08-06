@@ -20,7 +20,11 @@ function InstallNpmPackages() {
         Write-Host "Package-lock.json exists: $(Test-Path package-lock.json)"
         
         try {
-            npm ci --verbose | Out-Host
+            Write-Host "Installing dependencies (this may take a moment)..."
+            npm ci --silent 2>&1 | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "✅ npm dependencies installed successfully"
+            }
             CheckLastExitCode "npm ci"
         }
         catch {
