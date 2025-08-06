@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 
 test('Frontend page should load', async ({ page }) => {
-  console.log('Starting Playwright test for frontend');  
   try {
     await page.goto('http://localhost:4200'); 
     await expect(page).toHaveTitle(/AngularReportDesigner/i);
@@ -15,7 +14,6 @@ test('Frontend page should load', async ({ page }) => {
 });
 
 test('DevExpress Report Designer should exist', async ({ page }) => {
-  console.log('Starting Playwright test for DevExpress Report Designer');
     await page.goto('http://localhost:4200');
 
     // Check if the DevExpress Report Designer markup exists
@@ -25,7 +23,6 @@ test('DevExpress Report Designer should exist', async ({ page }) => {
 });
 
 test('Preview, Design and Menu buttons should be clickable', async ({ page }) => {
-  console.log('Starting Playwright test for Preview, Design and Menu buttons');
     await page.goto('http://localhost:4200');
 
     // Wait for the page to load

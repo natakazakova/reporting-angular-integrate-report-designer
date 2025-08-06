@@ -4,11 +4,11 @@ name: Example Tests
 on:
   push:
     branches: 
-      - '[0-9]+.[0-9]+.[0-9]+\+'  # Matches xx.x.x+ pattern
+      - '[0-9]+.[0-9]+.[0-9]+\+'  
   pull_request:
     branches: 
-      - '[0-9]+.[0-9]+.[0-9]+\+'  # Matches xx.x.x+ pattern
-  workflow_dispatch:  # Allows manual triggering
+      - '[0-9]+.[0-9]+.[0-9]+\+' 
+  workflow_dispatch:  
 
 env:
   NODE_VERSION: '20'
@@ -17,7 +17,7 @@ env:
 jobs:
   test:
     runs-on: windows-latest
-    timeout-minutes: 5    
+    timeout-minutes: 15    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -44,23 +44,85 @@ jobs:
     - name: Install dependencies
       shell: pwsh
       run: |
-        Write-Host "Installing npm dependencies..."
-        npm ci
-        Write-Host "Installing Playwright browsers..."
-        npx playwright install --with-deps chromium
+        Write-Host "DEPENDENCY INSTALLATION" -ForegroundColor Cyan
+        Write-Host "Current directory: $(Get-Location)" -ForegroundColor Gray
+        Write-Host "Node version: $(node --version)" -ForegroundColor Gray
+        Write-Host "npm version: $(npm --version)" -ForegroundColor Gray
+        
+        try {
+          Write-Host "Installing npm dependencies..." 
+          npm ci --verbose
+          Write-Host "npm dependencies installed successfully" -ForegroundColor Green
+          
+          Write-Host "Installing Playwright browsers..." 
+          npx playwright install --with-deps chromium
+          Write-Host "Playwright browsers installed successfully" -ForegroundColor Green
+        }
+        catch {
+          Write-Host "Dependency installation failed: $($_.Exception.Message)" -ForegroundColor Red
+          Write-Host "Error details: $($_.Exception.ToString())" -ForegroundColor Red
+          exit 1
+        }
         
     - name: Run Tests
       shell: pwsh
       run: |
+        Write-Host "TEST EXECUTION" -ForegroundColor Cyan
+        Write-Host "Current directory: $(Get-Location)" -ForegroundColor Gray
+        Write-Host "PowerShell version: $($PSVersionTable.PSVersion)" -ForegroundColor Gray
+        Write-Host "Available processes before test: $(Get-Process | Measure-Object | Select-Object -ExpandProperty Count)" -ForegroundColor Gray
+        
         try {
-          & "test/main-test.ps1"
-          if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Tests failed with exit code: $LASTEXITCODE" -ForegroundColor Red
-            exit $LASTEXITCODE
+          Write-Host "Starting test script execution..." 
+          
+          # Check if test script exists
+          if (-Not (Test-Path "test/main-test.ps1")) {
+            Write-Host "Test script not found at: test/main-test.ps1" -ForegroundColor Red
+            Write-Host "Available files in test directory:" 
+            Get-ChildItem -Path "test" -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "  $($_.Name)" -ForegroundColor Gray }
+            exit 1
           }
-          Write-Host "✅ Tests passed successfully" -ForegroundColor Green
+          
+          Write-Host "Test script found, executing..." -ForegroundColor Green
+          & "test/main-test.ps1"
+          $scriptExitCode = $LASTEXITCODE
+          
+          Write-Host "Script execution completed with exit code: $scriptExitCode" -ForegroundColor $(if ($scriptExitCode -eq 0) { 'Green' } else { 'Red' })
+          
+          if ($scriptExitCode -ne 0) {
+            Write-Host "Tests failed with exit code: $scriptExitCode" -ForegroundColor Red
+            Write-Host "Available processes after test: $(Get-Process | Measure-Object | Select-Object -ExpandProperty Count)" -ForegroundColor Gray
+            
+            # Show any remaining node or npm processes
+            $nodeProcesses = Get-Process -Name "node" -ErrorAction SilentlyContinue
+            $npmProcesses = Get-Process -Name "npm" -ErrorAction SilentlyContinue
+            if ($nodeProcesses) {
+              Write-Host "Remaining node processes:" 
+              $nodeProcesses | ForEach-Object { Write-Host "  PID: $($_.Id), Name: $($_.ProcessName)" -ForegroundColor Gray }
+            }
+            if ($npmProcesses) {
+              Write-Host "Remaining npm processes:" 
+              $npmProcesses | ForEach-Object { Write-Host "  PID: $($_.Id), Name: $($_.ProcessName)" -ForegroundColor Gray }
+            }
+            
+            exit $scriptExitCode
+          }
+          
+          Write-Host "Tests passed successfully" -ForegroundColor Green
         }
         catch {
-          Write-Host "❌ Test execution failed: $($_.Exception.Message)" -ForegroundColor Red
+          Write-Host "Test execution failed with exception:" -ForegroundColor Red
+          Write-Host "Exception Message: $($_.Exception.Message)" -ForegroundColor Red
+          Write-Host "Exception Type: $($_.Exception.GetType().FullName)" -ForegroundColor Red
+          Write-Host "Script Stack Trace:" -ForegroundColor Red
+          Write-Host "$($_.ScriptStackTrace)" -ForegroundColor Red
+          Write-Host "Full Exception Details:" -ForegroundColor Red
+          Write-Host "$($_.Exception.ToString())" -ForegroundColor Red
+          
+          # Show system state for debugging
+          Write-Host "System Diagnostics:" 
+          Write-Host "Available memory: $([math]::Round((Get-WmiObject -Class Win32_OperatingSystem).FreePhysicalMemory/1MB, 2)) MB" -ForegroundColor Gray
+          Write-Host "Running processes: $(Get-Process | Measure-Object | Select-Object -ExpandProperty Count)" -ForegroundColor Gray
+          
           exit 1
         }
